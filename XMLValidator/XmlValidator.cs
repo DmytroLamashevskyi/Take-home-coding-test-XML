@@ -7,6 +7,10 @@
 
     public class XmlValidator : IXmlValidator
     {
+        private const char TAG_OPENNER = '<';
+        private const char TAG_CLOSER = '>';
+        private const char TAG_CLOSER_SLASH = '/';
+
         public bool DetermineXml(string str)
         {
             //Check inputs
@@ -17,23 +21,33 @@
 
             Stack<string> tags = new Stack<string>();
             bool IsTagOpen = false;
-            bool IsTagClosing = false;
+            bool IsTagClose = false;
             string tag = string.Empty;
+
             for (int i = 0; i < str.Length; i++)
             {
-                if (str[i] == '<')
+                if (str[i] == TAG_OPENNER)
                 {
                     IsTagOpen = true;
                     tag = string.Empty;
                 }
-                else if (str[i] == '>')
+                else if (str[i] == TAG_CLOSER)
                 {
                     if (IsTagOpen)
                     {
+                        if(string.IsNullOrEmpty(tag))
+                        {
+                            return false;
+                        }
                         tags.Push(tag);
                     }
                     else
                     {
+                        if (tags.Count == 0)
+                        {
+                            return false;
+                        }
+
                         var popTag = tags.Pop();
                         if(tag != popTag)
                         {
@@ -41,13 +55,13 @@
                         }
                     }
                     IsTagOpen = false;
-                    IsTagClosing = false;
+                    IsTagClose = false;
                 }
-                else if (str[i] == '/')
+                else if (IsTagOpen && str[i] == TAG_CLOSER_SLASH)
                 {
                     IsTagOpen = false;
-                    IsTagClosing = true;
-                }else if(IsTagOpen || IsTagClosing)
+                    IsTagClose = true;
+                }else if(IsTagOpen || IsTagClose)
                 {
                     tag+=str[i];
                 }
