@@ -13,7 +13,7 @@ namespace Tests
         public bool ValidatorTest(string input)
         {
             IXmlValidator validator = new XmlValidator();
-            return validator.IsValid(input);
+            return validator.DetermineXml(input);
         }
     }
 }
